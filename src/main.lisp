@@ -1,15 +1,15 @@
 (defpackage envy-ningle
   (:use :cl)
   (:export #:build-middleware
-           #:extract-mito-config))
+           #:extract-middleware-config))
 
 (in-package envy-ningle)
 
-(defun extract-mito-config (env)
-  "Returns the keyword backend and initargs from :mito middleware in the ENVY config."
+(defun extract-middleware-config (env conf)
+  "Returns the keyword backend and initargs from middleware in the ENVY config."
   (let ((middleware (getf (envy:config env) :middleware)))
     (loop :for mw :in middleware
-          :when (and (consp mw) (eq (car mw) :mito))
+          :when (and (consp mw) (eq (car mw) conf))
           :return (destructuring-bind (_ (backend &rest args)) mw
                    (values backend args)))))
 
