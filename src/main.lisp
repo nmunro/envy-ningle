@@ -1,7 +1,8 @@
 (defpackage envy-ningle
   (:use :cl)
   (:export #:build-middleware
-           #:extract-middleware-config))
+           #:extract-middleware-config
+           #:get-config))
 
 (in-package envy-ningle)
 
@@ -25,3 +26,7 @@
       (error (e)
         (format *error-output* "~&[build-middleware ERROR] ~A~%" e)
         (error e)))))
+
+(defun get-config (setting)
+    (let ((pkg (find-package (string-upcase (uiop:getenv "ENVY_CONFIG_PACKAGE")))))
+        (getf (envy:config pkg) setting)))
