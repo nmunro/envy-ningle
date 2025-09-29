@@ -3,7 +3,8 @@
   :author "nmunro"
   :license "BSD3-Clause"
   :description ""
-  :depends-on (:envy)
+  :depends-on (:envy
+               :lack)
   :components ((:module "src"
                 :components
                 ((:file "main"))))
