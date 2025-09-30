@@ -2,9 +2,16 @@
   (:use :cl)
   (:export #:build-middleware
            #:extract-middleware-config
-           #:get-config))
+           #:get-config
+           #:missing-config-package-error
+           #:missing-config-package-error-message))
 
 (in-package envy-ningle)
+
+(define-condition missing-config-package-error (error)
+  ((message :initarg :message :reader missing-config-package-error-message))
+  (:report (lambda (condition stream)
+             (format stream "Missing ENVY configuration package: ~A" (missing-config-package-error-message condition)))))
 
 (defun extract-middleware-config (env conf)
   "Returns the keyword backend and initargs from middleware in the ENVY config."
@@ -28,5 +35,15 @@
         (error e)))))
 
 (defun get-config (setting)
-    (let ((pkg (find-package (string-upcase (uiop:getenv "ENVY_CONFIG_PACKAGE")))))
-        (getf (envy:config pkg) setting)))
+  "Retrieves a configuration SETTING from the current package."
+  (let* ((pkg-name (uiop:getenv "ENVY_CONFIG_PACKAGE"))
+         (pkg (and pkg-name (find-package (string-upcase pkg-name)))))
+    (unless pkg-name
+      (error 'missing-config-package-error
+             :message "The environment variable ENVY_CONFIG_PACKAGE is not set. Please set it to the name of your configuration package (e.g., BUILD-BOT/CONFIG)."))
+
+    (unless pkg
+      (error 'missing-config-package-error
+             :message (format nil "The package ~S does not exist. Please check your system definition and ensure the package is loaded." pkg-name)))
+
+    (getf (envy:config pkg) setting)))
