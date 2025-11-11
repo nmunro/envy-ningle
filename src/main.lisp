@@ -25,6 +25,13 @@
   "Wraps the given APP in middleware as defined in ENVY config at runtime."
   (let* ((config (envy:config envy-config))
          (middleware (getf config :middleware)))
+    (unless (and middleware (listp middleware))
+      (error "[envy-ningle] :middleware config missing or not a list in ~A" envy-config))
+
+    (dolist (entry middleware)
+      (unless (and (consp entry) (keywordp (car entry)))
+        (error "[envy-ningle] Invalid middleware entry: ~S~%  Each middleware entry must be a list starting with a keyword (e.g. (:session) or (:static ...))" entry)))
+
     (handler-case
         ;; This ensures each middleware entry is quoted
         (eval `(lack.builder:builder
