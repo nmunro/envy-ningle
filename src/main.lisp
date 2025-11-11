@@ -35,7 +35,7 @@
     (handler-case
         ;; This ensures each middleware entry is quoted
         (eval `(lack.builder:builder
-                 ,@(mapcar (lambda (entry) `',entry) middleware)
+                 ,@middleware
                  ,app))
       (error (e)
         (format *error-output* "~&[build-middleware ERROR] ~A~%" e)
